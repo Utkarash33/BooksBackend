@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,24 +31,19 @@ public class Book {
 	
 	private String title;
 	private String description;
-	private Double page_count;
-	private LocalDate published_date;
-	
+	private Integer page_count;
+	private String published_date;
+	private String image;
 	
 	 @ManyToMany(mappedBy = "books")
 	    private List<Author> authors;
 	
 	
-	@OneToMany(mappedBy = "book")
-	@JsonIgnore
-	private List<CommunityDiscussion> discussions;
 	
-	 @OneToMany(mappedBy = "book")
-	 @JsonIgnore
+	   @OneToMany(mappedBy = "book",cascade = CascadeType.ALL)
 	    private List<BookReview> reviews;
 
-	    @OneToMany(mappedBy = "book")
-	    @JsonIgnore
+	     @OneToMany(mappedBy = "book",cascade = CascadeType.ALL)
 	    private List<ReadingList> readingLists;
 	
 

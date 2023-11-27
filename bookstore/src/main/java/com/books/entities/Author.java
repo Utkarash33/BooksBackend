@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,12 +30,12 @@ public class Author {
 	private String bio;
 	
 	
-	 @ManyToMany
+	 @ManyToMany(cascade = CascadeType.ALL)
 	    @JoinTable(
 	        name = "author_book",
 	        joinColumns = @JoinColumn(name = "author_id"),
 	        inverseJoinColumns = @JoinColumn(name = "book_id")
-	    )
+	        )
 	 @JsonIgnore
 	    private List<Book> books;
 }

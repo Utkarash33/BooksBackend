@@ -26,8 +26,6 @@ public class CommunityDiscussion {
 	private LocalDate created_at;
 	
 	
-	 @ManyToOne
-	    private Book book;
 
 	    @OneToMany(mappedBy = "discussion")
 	    private List<DiscussionContent> contents;
