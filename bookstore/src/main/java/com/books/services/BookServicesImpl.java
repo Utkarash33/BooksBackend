@@ -3,6 +3,7 @@ package com.books.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import com.books.DTO.BooksDTO;
 import com.books.entities.Author;
 import com.books.entities.Book;
+import com.books.entities.BookReview;
 import com.books.entities.ReadingList;
 import com.books.exceptions.NoDataFoundException;
 import com.books.repository.AuthorRepo;
@@ -40,13 +42,15 @@ public class BookServicesImpl implements BookServices{
 	public List<BooksDTO> getAllBooks(int page,int limit)
 	{
 		
+		
 		List<BooksDTO> books = new ArrayList<>();
 		
 		//get books from the database
 		 if(page==1)
 		 {
+			 
 			 List<Book> booksFromDataBase= bookRepo.findAll();
-				
+				if(booksFromDataBase.size()!=0)
 				for(Book book: booksFromDataBase)
 				{
 					BooksDTO dto = new BooksDTO();
@@ -59,8 +63,9 @@ public class BookServicesImpl implements BookServices{
 					  dto.setImageUrl(book.getImage());
 					 List<String> authorList = new ArrayList<>();
 					 
-					 authorList.add(book.getAuthors().get(0).getName());
-					 
+					 if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
+						    authorList.add(book.getAuthors().get(0).getName());
+						}
 					 dto.setAuthors(authorList);
 					 
 					
@@ -69,8 +74,8 @@ public class BookServicesImpl implements BookServices{
 				}
 				
 		 }
-		 limit-=books.size();
 		
+		 limit-=books.size();
 		//get books from the api
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<Map<String,Object>> responseEntity = restTemplate.exchange(
@@ -118,7 +123,7 @@ public class BookServicesImpl implements BookServices{
 		
 		authorList.add(authorRepo.findByName(bookdto.getAuthors().get(0))
 				   .orElseThrow(
-						   ()->new IllegalArgumentException("Author not found")
+						   ()->new NoDataFoundException("Author not found")
 						   ));
 		book.setAuthors(authorList);
 		
@@ -161,7 +166,8 @@ public class BookServicesImpl implements BookServices{
 	public Book getBookById(String bookId) {
     try {
         Integer id = Integer.parseInt(bookId);
-        return bookRepo.findById(id).orElseThrow(() -> new NoDataFoundException("Book not found"));
+       return bookRepo.findById(id).orElseThrow(() -> new NoDataFoundException("Book not found"));
+
     } catch (NumberFormatException | NoDataFoundException ex) {
         String url = "https://www.googleapis.com/books/v1/volumes/" +bookId;
         RestTemplate restTemplate = new RestTemplate();
@@ -182,27 +188,50 @@ public class BookServicesImpl implements BookServices{
         List<String> authors = (List<String>) volumeInfo.get("authors");
         List<Author> authorList = new ArrayList<>();
 
-        for (String s : authors) {
-            Author author = authorRepo.findByName(s).orElseGet(() -> {
-                Author newAuthor = new Author();
-                newAuthor.setName(s);
-                return newAuthor;
-            });
-            authorList.add(author);
-        }
+        for (String authorName : authors) {
+            Optional<Author> existingAuthor = authorRepo.findByName(authorName);
 
-        Book book = new Book();
-        book.setGoogle_books_api_id(bookId);
+            if (existingAuthor.isPresent()) {
+                // If the author already exists, reuse the existing one
+                authorList.add(existingAuthor.get());
+            } else {
+                // If the author doesn't exist, create a new one and save it
+                Author newAuthor = new Author();
+                newAuthor.setName(authorName);
+                authorRepo.save(newAuthor);
+                authorList.add(newAuthor);
+            }
+        } 
         
-        book.setAuthors(authorList);
-        book.setDescription((String) volumeInfo.get("description"));
+       
+        Book book = new Book();
+        book.setGoogleId(bookId);
+        
+        
+       
+       String truncatedDescription = (String) volumeInfo.get("description");
+
+    	book.setDescription(truncatedDescription);
         book.setPage_count((Integer) volumeInfo.get("pageCount"));
         book.setTitle((String) volumeInfo.get("title"));
-
+        book.setPublished_date((String) volumeInfo.get("publishedDate"));
         Map<String, Object> images = (Map<String, Object>) volumeInfo.get("imageLinks");
         book.setImage(images != null ? (String) images.get("thumbnail") : null);
-        book.setReviews(ratingRepo.findByBook(book));
-        return book;
+        
+       
+      if(!bookRepo.findByTitle(book.getTitle()).isPresent())
+      {
+    	  bookRepo.save(book); 
+      }
+      else
+      {
+    	  book= bookRepo.findByTitle(book.getTitle()).get();
+      }
+      List<BookReview> bookReviews = ratingRepo.findByBook(book);
+     book.setReviews(bookReviews==null ? new ArrayList<>():bookReviews);
+     book.setAuthors(authorList);
+    
+     return book;
     } catch (Exception e) {
         throw new RuntimeException("Error retrieving book information: " + e.getMessage());
     }

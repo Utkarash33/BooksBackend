@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,8 +18,11 @@ import com.books.entities.CommunityDiscussion;
 import com.books.entities.DiscussionContent;
 import com.books.services.DiscussionService;
 
+import jakarta.annotation.security.PermitAll;
+
 @RestController
 @RequestMapping("/discussion")
+@CrossOrigin(origins ="*",allowedHeaders = "*")
 public class DiscussionController {
 
 	@Autowired
@@ -38,7 +42,8 @@ public class DiscussionController {
 	}
 	
 	
-	@GetMapping
+	@GetMapping("/getall")
+	
 	public ResponseEntity<List<CommunityDiscussion>> getAllDiscussions()
 	{
 		List<CommunityDiscussion> cdList = discussionService.getAllDiscussions();
@@ -47,12 +52,12 @@ public class DiscussionController {
 	}
 	
 	@GetMapping("/{discussionId}")
-	public ResponseEntity<CommunityDiscussion> getDiscussionById(
+	public ResponseEntity<List<DiscussionContent>> getDiscussionById(
 			@PathVariable Integer discussionId
 			)
 	{
 		
-		CommunityDiscussion cd = discussionService.findById(discussionId);
+		List<DiscussionContent> cd = discussionService.findById(discussionId);
 		
 		return new ResponseEntity<>(cd,HttpStatus.OK);
 	}
@@ -72,11 +77,11 @@ public class DiscussionController {
 	
 	@PostMapping("/addMessage/{discussionId}")
 	public ResponseEntity<DiscussionContent> addMessageToDiscussion(
-			@PathVariable Integer discussionId,
+			@PathVariable String discussionId,
 			@RequestParam String content,
 			@RequestParam Integer UserId)
 	{
-		DiscussionContent dc = discussionService.addMessage(discussionId,content,UserId);
+		DiscussionContent dc = discussionService.addMessage(Integer.parseInt(discussionId),content,UserId);
 		
 		return new ResponseEntity<>(null,HttpStatus.OK);
 	}

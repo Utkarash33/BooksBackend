@@ -13,6 +13,6 @@ public interface BookReviewService {
 
 	String deleteReview(Integer reviewId);
 
-	BookReview createReview(String bookId, String review, Integer rating);
+	BookReview createReview(String bookId, String review, Integer rating,Integer userId);
 
 }

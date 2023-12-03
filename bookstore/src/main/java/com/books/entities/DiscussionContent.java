@@ -2,6 +2,8 @@ package com.books.entities;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,9 +23,11 @@ public class DiscussionContent {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	@ManyToOne
+	
     private User user;
 
     @ManyToOne
+    @JsonIgnore
     private CommunityDiscussion discussion;
 
     private String content;

@@ -24,16 +24,16 @@ public class AuthorServiceImpl implements AuthorService{
 	
 	private static final String GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1";
 	
-	private final RestTemplate restTemplate;
+//	private final RestTemplate restTemplate;
 
     @Autowired
     private AuthorRepo authorRepo;
-
-    @Autowired
-    public AuthorServiceImpl(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
-	
+//
+//    @Autowired
+//    public AuthorServiceImpl(RestTemplate restTemplate) {
+//        this.restTemplate = restTemplate;
+//    }
+//	
 	@Override
 	public Author createAuthor(String name, String bio) {
 		

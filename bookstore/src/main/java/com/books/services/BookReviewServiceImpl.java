@@ -9,16 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.books.entities.Author;
 import com.books.entities.Book;
 import com.books.entities.BookReview;
+import com.books.entities.User;
 import com.books.exceptions.NoDataFoundException;
 import com.books.repository.AuthorRepo;
 import com.books.repository.BookRepo;
 import com.books.repository.ReviewRatingRepo;
+import com.books.repository.UserRepo;
 
+@Service
 public class BookReviewServiceImpl implements BookReviewService {
 	
 	
@@ -30,6 +34,9 @@ public class BookReviewServiceImpl implements BookReviewService {
 	
 	@Autowired
 	AuthorRepo authorRepo;
+	
+	@Autowired
+	UserRepo userRepo;
 	
 
 	@Override
@@ -43,9 +50,9 @@ public class BookReviewServiceImpl implements BookReviewService {
            
 	} catch (NumberFormatException | NoDataFoundException ex) {
 		
-		if(!bookRepo.findByGoogle_books_api_id(bookId).isEmpty())
+		if(!bookRepo.findByGoogleId(bookId).isEmpty())
     	{
-          Book book = bookRepo.findByGoogle_books_api_id(bookId).get(0);
+          Book book = bookRepo.findByGoogleId(bookId).get(0);
 	      
 	        
            if(book.getReviews().size()==0)
@@ -67,13 +74,15 @@ public class BookReviewServiceImpl implements BookReviewService {
 	}
 
 	@Override
-	public BookReview createReview(String bookId,String review, Integer rating) {
+	public BookReview createReview(String bookId,String review, Integer rating,Integer userId) {
 		
 		    BookReview bookReview = new BookReview();
 	        bookReview.setCreated_at(LocalDate.now());
 	        bookReview.setReview(review);
 	        bookReview.setRating(rating);
-		
+	        
+	        User user = userRepo.findById(userId).orElseThrow(()-> new NoDataFoundException("User not found"));
+		     bookReview.setUser(user);
 		try {
 	        Integer id = Integer.parseInt(bookId);
 	        Book book = bookRepo.findById(id).orElseThrow(() -> new NoDataFoundException("Book not found"));
@@ -89,9 +98,9 @@ public class BookReviewServiceImpl implements BookReviewService {
 	        
 	    } catch (NumberFormatException | NoDataFoundException ex) {
 	    	
-	    	if(!bookRepo.findByGoogle_books_api_id(bookId).isEmpty())
+	    	if(!bookRepo.findByGoogleId(bookId).isEmpty())
 	    	{
-              Book book = bookRepo.findByGoogle_books_api_id(bookId).get(0);
+              Book book = bookRepo.findByGoogleId(bookId).get(0);
   	        bookReview.setBook(book);
   	        
   	        book.getReviews().add(bookReview);
@@ -130,7 +139,7 @@ public class BookReviewServiceImpl implements BookReviewService {
 	        }
 
 	        Book book = new Book();
-	        book.setGoogle_books_api_id(bookId);
+	        book.setGoogleId(bookId);
 	        
 	        book.setAuthors(authorList);
 	        book.setDescription((String) volumeInfo.get("description"));
@@ -160,13 +169,22 @@ public class BookReviewServiceImpl implements BookReviewService {
 
 	@Override
 	public String deleteReview(Integer reviewId) {
-		
-	   BookReview bookReview = ratingRepo.findById(reviewId).orElseThrow(()->new NoDataFoundException("Data Not found."));
-		
-	   ratingRepo.delete(bookReview);
-	   
-		return  "Review has been removed";
+	    BookReview bookReview = ratingRepo.findById(reviewId)
+	            .orElseThrow(() -> new NoDataFoundException("Data Not found."));
+
+	    // Remove the association with Book
+	    Book book = bookReview.getBook();
+	    book.getReviews().remove(bookReview);
+
+	    // Remove the association with User
+	    User user = bookReview.getUser();
+	    user.getBookReviews().remove(bookReview);
+
+	    ratingRepo.delete(bookReview);
+
+	    return "Review has been removed";
 	}
+
 
 
 }

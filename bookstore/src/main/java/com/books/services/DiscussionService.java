@@ -11,7 +11,7 @@ public interface DiscussionService {
 
 	List<CommunityDiscussion> getAllDiscussions();
 
-	CommunityDiscussion findById(Integer discussionId);
+	List<DiscussionContent> findById(Integer discussionId);
 
 	String deleteDiscussion(Integer discussionId);
 

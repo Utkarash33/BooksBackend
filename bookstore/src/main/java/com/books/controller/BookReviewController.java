@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +20,7 @@ import com.books.services.BookReviewService;
 
 @RestController
 @RequestMapping("/review")
+@CrossOrigin(origins ="*",allowedHeaders = "*")
 public class BookReviewController {
 
 	
@@ -44,11 +45,12 @@ public class BookReviewController {
 	public ResponseEntity<BookReview> createBookReviews(
 			@PathVariable String bookId	,
 			@RequestParam String review,
-			@RequestParam Integer rating
+			@RequestParam Integer rating,
+			@RequestParam Integer userId
 			)
 	{
 		
-		BookReview bookReview = bookReviewService.createReview(bookId,review,rating);
+		BookReview bookReview = bookReviewService.createReview(bookId,review,rating,userId);
 		
 		return new ResponseEntity<>(bookReview,HttpStatus.OK);
 	}

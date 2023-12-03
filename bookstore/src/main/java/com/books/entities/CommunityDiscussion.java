@@ -3,6 +3,8 @@ package com.books.entities;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,6 +30,7 @@ public class CommunityDiscussion {
 	
 
 	    @OneToMany(mappedBy = "discussion")
+	    
 	    private List<DiscussionContent> contents;
 
 }

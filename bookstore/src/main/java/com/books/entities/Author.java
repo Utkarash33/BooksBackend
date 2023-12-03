@@ -36,6 +36,6 @@ public class Author {
 	        joinColumns = @JoinColumn(name = "author_id"),
 	        inverseJoinColumns = @JoinColumn(name = "book_id")
 	        )
-	 @JsonIgnore
+	    @JsonIgnore
 	    private List<Book> books;
 }

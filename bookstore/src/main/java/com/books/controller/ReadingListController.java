@@ -17,30 +17,34 @@ import com.books.entities.ReadingList;
 import com.books.services.ReadingListService;
 
 @RestController
-@RequestMapping("/api/reading-lists")
+@RequestMapping("/reading-lists")
 public class ReadingListController {
 
     @Autowired
-    private ReadingListService readingListRepository;
+    private ReadingListService readingListService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<ReadingList>> getUserReadingList(@PathVariable Long userId) {
+    public ResponseEntity<List<ReadingList>> getUserReadingList(@PathVariable Integer userId) {
        
-        return new ResponseEntity<>(null, HttpStatus.OK);
+    	List<ReadingList> readingList = readingListService.getUserReadingList(userId);
+        return new ResponseEntity<>(readingList, HttpStatus.OK);
     }
 
-    @PostMapping("/{userId}")
-    public ResponseEntity<ReadingList> addToReadingList(@PathVariable Long userId, @RequestBody ReadingList readingListItem) {
+    @PostMapping("/{userId}/{bookId}")
+    public ResponseEntity<ReadingList> addToReadingList(@PathVariable Integer userId, @PathVariable String bookId) {
         
-
+            ReadingList list= readingListService.addBookToList(userId,bookId);
        
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
+        return new ResponseEntity<>(list, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{readingListId}")
-    public ResponseEntity<String> removeFromReadingList(@PathVariable Long readingListId) {
+    public ResponseEntity<String> removeFromReadingList(@PathVariable Integer readingListId) {
         
-            return new ResponseEntity<>(null,HttpStatus.OK);
+    	
+    	String message = readingListService.removeItemFromList(readingListId);
+    	 System.out.println(message);
+            return new ResponseEntity<>(message,HttpStatus.OK);
         }
  
 }

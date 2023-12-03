@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,12 +23,12 @@ import com.books.services.BookServices;
 
 @RestController
 @RequestMapping("/books")
+@CrossOrigin(origins ="*",allowedHeaders = "*")
 public class BooksController {
 
 	
 	@Autowired
 	private BookServices bookServices;  
-	
 	
 	@GetMapping("")
 	public ResponseEntity<List<BooksDTO>> getAllBooks(
@@ -50,11 +52,12 @@ public class BooksController {
 	   return new ResponseEntity<>(book,HttpStatus.OK);
    }
 	
-	
+    
 	@PostMapping("/create")
 	public ResponseEntity<Book> createBook(@RequestBody BooksDTO bookdto)
 	{
 		
+		System.out.println(bookdto);
 	   Book book =	bookServices.createBook(bookdto);
 		
 		return new ResponseEntity<>(book, HttpStatus.CREATED);

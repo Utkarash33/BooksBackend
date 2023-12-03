@@ -19,8 +19,8 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-	@Value("${jwt.secret}")
-	private  String SECRET_KEY;
+	
+	private  String SECRET_KEY= SecurityConstants.JWT_KEY;
 
 	
 	public String extractUsername(String token) {
@@ -62,7 +62,7 @@ public class JwtService {
 			   .setClaims(claims)
 			   .setSubject(details.getUsername())
 			   .setIssuedAt(new Date(System.currentTimeMillis()))
-			   .setExpiration(new Date(System.currentTimeMillis() + 1000*60*24*30))
+			   .setExpiration(new Date(System.currentTimeMillis() + 30000000))
 			   .signWith(getSignInKey(),SignatureAlgorithm.HS256)
 			   .compact();
    }

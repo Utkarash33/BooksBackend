@@ -2,6 +2,8 @@ package com.books.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,17 +24,22 @@ public class User {
 	private Integer id;
 	private String name;
 	private String username;
+	
+	@JsonIgnore
 	private String password;
 	private String role;
 	
-	
-	  @OneToMany(mappedBy = "user")
+	 
+	    @OneToMany(mappedBy = "user")
+	    @JsonIgnore
 	    private List<DiscussionContent> discussionContents;
 
 	    @OneToMany(mappedBy = "user")
+	    @JsonIgnore
 	    private List<BookReview> bookReviews;
 
 	    @OneToMany(mappedBy = "user")
+	    @JsonIgnore
 	    private List<ReadingList> readingLists;
 
 }

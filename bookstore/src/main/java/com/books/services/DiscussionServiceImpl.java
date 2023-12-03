@@ -38,7 +38,7 @@ public class DiscussionServiceImpl implements DiscussionService {
 		cd.setCreated_at(LocalDate.now());
 		cd.setTitle(title);
 		cd.setContents(new ArrayList<>());
-		
+		System.out.println(cd);
 		return communityDiscussionRepo.save(cd);
 	}
 
@@ -48,12 +48,12 @@ public class DiscussionServiceImpl implements DiscussionService {
 	}
 
 	@Override
-	public CommunityDiscussion findById(Integer discussionId) {
+	public List<DiscussionContent> findById(Integer discussionId) {
 		
 		
 	CommunityDiscussion communityDiscussion = communityDiscussionRepo.findById(discussionId)
 			                                 .orElseThrow(()-> new NoDataFoundException("Discussion Not found"));
-		return communityDiscussion;
+		return communityDiscussion.getContents();
 	}
 
 	@Override

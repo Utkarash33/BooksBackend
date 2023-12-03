@@ -9,4 +9,6 @@ public interface AuthService {
 
 	String loginUser(LoginRequest loginRequest);
 
+	User loginUser(String User);
+
 }
